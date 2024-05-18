@@ -6,7 +6,7 @@ import { BarsArrowUpIcon } from "@heroicons/react/20/solid";
 import { ContractUI } from "~~/app/debug/_components/contract";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 import { ContractName } from "~~/utils/scaffold-eth/contract";
-import { getAllContracts } from "~~/utils/scaffold-eth/contractsData";
+import { getAllContracts, getAllContractsAync } from "~~/utils/scaffold-eth/contractsData";
 
 const selectedContractStorageKey = "scaffoldEth2.selectedContract";
 
@@ -22,9 +22,11 @@ export function DebugContracts() {
   );
 
   useEffect(() => {
-    const newContractsData = getAllContracts(targetNetwork.id);
-    setContractsData(newContractsData);
-    setContractNames(Object.keys(newContractsData) as ContractName[]);
+    (async function () {
+      const newContractsData = await getAllContractsAync(targetNetwork.id);
+      setContractsData(newContractsData);
+      setContractNames(Object.keys(newContractsData) as ContractName[]);
+    })();
   }, [targetNetwork.id]);
 
   useEffect(() => {
