@@ -537,31 +537,48 @@ export async function fulfilledContracts(
   contracts: {
     [contractName: string]: GenericContract;
   },
-): Promise<void> {
+): Promise<{
+  [contractName: string]: GenericContract;
+}> {
+  const targetNetworks = getTargetNetworks();
+  const network = targetNetworks.find(network => network.id.toString() == chainId);
+  if (!network) return contracts;
+
+  const externalContractsKey = "EXTERNAL_CONTRACTS";
+  const cache = localStorage.getItem(externalContractsKey);
+  let cachedContracts = cache ? (JSON.parse(cache) as GenericContractsDeclaration) : null;
+  if (cachedContracts && cachedContracts[network.id]) {
+    Object.assign(contracts, cachedContracts[network.id]);
+    return contracts;
+  }
+
   for (const contractName of Object.keys(contracts)) {
     const contract = contracts[contractName];
     if (contract.abi.length == 0) {
       // trying to parse abi using whatsabi
-      const targetNetworks = getTargetNetworks();
-      const network = targetNetworks.find(network => network.id.toString() == chainId);
-      if (network) {
-        const provider = new ethers.JsonRpcProvider(network.rpcUrls.default.http[0]);
-        const result = await whatsabi.autoload(contract.address, {
-          provider: provider,
-          enableExperimentalMetadata: true,
-          followProxies: true,
-          ...whatsabi.loaders.defaultsWithEnv({
-            SOURCIFY_CHAIN_ID: chainId,
-            ETHERSCAN_BASE_URL: network.blockExplorers?.default.apiUrl,
-            ETHERSCAN_API_KEY: "DNXJA8RX2Q3VZ4URQIWP7Z68CJXQZSC6AW",
-          }),
-        });
-        console.log(`Parsed ABI for ${contractName} on ${chainId}, ABI=${JSON.stringify(result.abi)}`);
-        contract.abi = result.abi as any;
-        contract.parsed = true;
-      }
+      const provider = new ethers.JsonRpcProvider(network.rpcUrls.default.http[0]);
+      const result = await whatsabi.autoload(contract.address, {
+        provider: provider,
+        enableExperimentalMetadata: true,
+        followProxies: true,
+        ...whatsabi.loaders.defaultsWithEnv({
+          SOURCIFY_CHAIN_ID: chainId,
+          ETHERSCAN_BASE_URL: network.blockExplorers?.default.apiUrl,
+          ETHERSCAN_API_KEY: "DNXJA8RX2Q3VZ4URQIWP7Z68CJXQZSC6AW",
+        }),
+      });
+      console.log(`Parsed ABI for ${contractName} on ${chainId}, ABI=${JSON.stringify(result.abi)}`);
+      contract.abi = result.abi as any;
+      contract.parsed = true;
     }
   }
+
+  // cache
+  cachedContracts = cachedContracts ?? ({} as GenericContractsDeclaration);
+  cachedContracts[network.id] = contracts;
+  localStorage.setItem(externalContractsKey, JSON.stringify(cachedContracts));
+
+  return contracts;
 }
 
 export default externalContracts satisfies GenericContractsDeclaration;

@@ -5,7 +5,7 @@ import { contracts } from "~~/utils/scaffold-eth/contract";
 export async function getAllContractsAync(chainId: number = scaffoldConfig.targetNetworks[0].id) {
   const contractsData = contracts?.[chainId];
   if (contractsData) {
-    await fulfilledContracts(chainId.toString(), contractsData);
+    return await fulfilledContracts(chainId.toString(), contractsData);
   }
   return contractsData ? contractsData : {};
 }
