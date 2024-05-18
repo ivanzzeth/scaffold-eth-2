@@ -152,7 +152,9 @@ export const ReadOrWriteFunctionForm = ({
             {result !== null && result !== undefined && (
               <div className="bg-secondary rounded-3xl text-sm px-4 py-1.5 break-words">
                 <p className="font-bold m-0 mb-1">Result:</p>
-                <pre className="whitespace-pre-wrap break-words">{displayTxResult(result)}</pre>
+                <pre className="whitespace-pre-wrap break-words">{`[${abiFunction.outputs
+                  .map(out => out.type)
+                  .join(",")}]: ${displayTxResult(result)}`}</pre>
               </div>
             )}
           </div>
