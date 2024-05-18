@@ -59,6 +59,14 @@ export function DebugContracts() {
                       <BarsArrowUpIcon className="h-4 w-4 cursor-pointer" />
                     </span>
                   )}
+                  {contractsData[contractName].parsed && (
+                    <span
+                      className="tooltip tooltip-top tooltip-accent"
+                      data-tip="Unverified contract whose abi will be parsed by whatsabi"
+                    >
+                      💻
+                    </span>
+                  )}
                 </button>
               ))}
             </div>

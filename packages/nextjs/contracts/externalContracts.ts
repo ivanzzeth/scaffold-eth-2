@@ -546,9 +546,19 @@ export async function fulfilledContracts(
       const network = targetNetworks.find(network => network.id.toString() == chainId);
       if (network) {
         const provider = new ethers.JsonRpcProvider(network.rpcUrls.default.http[0]);
-        const result = await whatsabi.autoload(contract.address, { provider: provider });
+        const result = await whatsabi.autoload(contract.address, {
+          provider: provider,
+          enableExperimentalMetadata: true,
+          followProxies: true,
+          ...whatsabi.loaders.defaultsWithEnv({
+            SOURCIFY_CHAIN_ID: chainId,
+            ETHERSCAN_BASE_URL: network.blockExplorers?.default.apiUrl,
+            ETHERSCAN_API_KEY: "DNXJA8RX2Q3VZ4URQIWP7Z68CJXQZSC6AW",
+          }),
+        });
         console.log(`Parsed ABI for ${contractName} on ${chainId}, ABI=${JSON.stringify(result.abi)}`);
         contract.abi = result.abi as any;
+        contract.parsed = true;
       }
     }
   }

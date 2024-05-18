@@ -64,6 +64,7 @@ export type GenericContract = {
   address: Address;
   abi: Abi;
   inheritedFunctions?: InheritedFunctions;
+  parsed?: true; // indicates if this abi is parsed by whatsabi.
   external?: true;
 };
 

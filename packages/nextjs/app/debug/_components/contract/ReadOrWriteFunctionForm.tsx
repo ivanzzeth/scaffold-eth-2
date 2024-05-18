@@ -39,6 +39,8 @@ export const ReadOrWriteFunctionForm = ({
 
   // read contract
   const [result, setResult] = useState<unknown>();
+  const readDisabled = !abiFunction.outputs || abiFunction.outputs.length == 0;
+
   const { isFetching, refetch, error } = useReadContract({
     address: contractAddress,
     functionName: abiFunction.name,
@@ -59,6 +61,7 @@ export const ReadOrWriteFunctionForm = ({
   }, [error]);
 
   const handleRead = async () => {
+    console.log(`handleRead, abiFunc: ${JSON.stringify(abiFunction)}`);
     const { data } = await refetch();
     setResult(data);
   };
@@ -162,10 +165,18 @@ export const ReadOrWriteFunctionForm = ({
           )}
 
           {/* Read button */}
-          <button className="btn btn-secondary btn-sm" onClick={handleRead} disabled={isFetching}>
-            {isFetching && <span className="loading loading-spinner loading-xs"></span>}
-            Read 📡
-          </button>
+          <div
+            className={`flex ${
+              readDisabled &&
+              "tooltip before:content-[attr(data-tip)] before:right-[-10px] before:left-auto before:transform-none"
+            }`}
+            data-tip={`${readDisabled && "Cannot decode result without outputs of abi"}`}
+          >
+            <button className="btn btn-secondary btn-sm" onClick={handleRead} disabled={readDisabled || isFetching}>
+              {isFetching && <span className="loading loading-spinner loading-xs"></span>}
+              Read 📡
+            </button>
+          </div>
 
           {/* Write button */}
           <div
