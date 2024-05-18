@@ -84,6 +84,8 @@ export const useTransactor = (_walletClient?: WalletClient): TransactionFunc => 
         },
       );
 
+      // TODO: Type check
+      // @ts-ignore
       if (options?.onBlockConfirmation) options.onBlockConfirmation(transactionReceipt);
     } catch (error: any) {
       if (notificationId) {
